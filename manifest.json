@@ -1,13 +1,13 @@
 {
-  "name": "Motor de Escalas",
+  "name": "Escalas Musicales",
   "short_name": "Escalas",
-  "description": "Generador interactivo de escalas para guitarra.",
+  "description": "Motor interactivo de escalas para guitarra.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
-  "orientation": "portrait",
-  "background_color": "#000000",
-  "theme_color": "#000000",
+  "orientation": "any",
+  "background_color": "#0a0a0a",
+  "theme_color": "#0a0a0a",
   "lang": "es",
   "icons": [
     {
