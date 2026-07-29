@@ -76,13 +76,18 @@
             display: flex; flex-direction: column; align-items: center; margin-top: 10px;
         }
 
+        /* ESTADO NORMAL (CELULAR VERTICAL) */
         .contenedor-mastil {
-            width: 100%; display: flex; justify-content: center; align-items: center;
+            width: 100%; overflow-x: auto; display: flex; justify-content: flex-start;
             padding: 10px 0; border-top: 1px solid #333; border-bottom: 1px solid #333;
         }
+        #svg-mastil { min-width: 850px; height: 180px; overflow: visible; }
 
-        /* SVG ahora escala automáticamente al 100% de la pantalla */
-        #svg-mastil { width: 100%; max-width: 1000px; height: auto; overflow: visible; }
+        /* SENSOR DE ROTACIÓN: ESTADO CELULAR HORIZONTAL / PC */
+        @media (orientation: landscape) {
+            .contenedor-mastil { justify-content: center; overflow-x: hidden; }
+            #svg-mastil { min-width: auto; width: 100%; max-width: 1000px; height: auto; }
+        }
 
         .titulo-seccion { color: #fff; font-weight: 300; font-size: 1em; margin-bottom: 5px; margin-top: 15px; width: 90%; max-width: 420px; text-align: left; }
         
@@ -137,8 +142,7 @@
             </div>
 
             <div class="contenedor-mastil">
-                <!-- SVG Mástil Auto-Escalable -->
-                <svg id="svg-mastil" viewBox="-30 -20 800 165"></svg>
+                <svg id="svg-mastil" viewBox="-30 -20 820 180"></svg>
             </div>
             
             <div style="display: flex; gap: 10px; width: 100%; justify-content: center; margin-top: 25px; flex-wrap: wrap;">
@@ -255,7 +259,7 @@
             
             NOMBRES_NOTAS.forEach((nombre, index) => {
                 let opt = document.createElement('option'); 
-                opt.value = index; // Guardamos el número
+                opt.value = index; 
                 opt.innerText = nombre;
                 sTon.appendChild(opt);
             });
@@ -325,7 +329,6 @@
             for(let i = 0; i <= FRETS; i++) {
                 let x = i * FRET_SPACING;
                 
-                // Fondo de la cejilla (Traste 0)
                 if (i === 0) {
                     let cejilla = document.createElementNS("http://www.w3.org/2000/svg", "rect");
                     cejilla.setAttribute("x", x - 10); cejilla.setAttribute("y", -10);
@@ -341,7 +344,6 @@
                 linea.setAttribute("stroke-width", i === 0 ? 3 : 1.5);
                 svg.appendChild(linea);
 
-                // Números de traste abajo
                 if (i > 0) {
                     let num = document.createElementNS("http://www.w3.org/2000/svg", "text");
                     num.setAttribute("x", x - (FRET_SPACING/2));
@@ -375,15 +377,13 @@
             CUERDAS_IDX.forEach((idxAire, idxCuerda) => {
                 let y = idxCuerda * STRING_SPACING;
                 
-                // Línea de la cuerda
                 let lineaCuerda = document.createElementNS("http://www.w3.org/2000/svg", "line");
                 lineaCuerda.setAttribute("x1", -10); lineaCuerda.setAttribute("y1", y);
                 lineaCuerda.setAttribute("x2", FRETS * FRET_SPACING); lineaCuerda.setAttribute("y2", y);
                 lineaCuerda.setAttribute("stroke", "#888");
-                lineaCuerda.setAttribute("stroke-width", 1 + (idxCuerda * 0.2)); // Cuerdas graves más gruesas
+                lineaCuerda.setAttribute("stroke-width", 1 + (idxCuerda * 0.2)); 
                 svg.appendChild(lineaCuerda);
 
-                // Letra de afinación al inicio
                 let afinacion = document.createElementNS("http://www.w3.org/2000/svg", "text");
                 afinacion.setAttribute("x", -25); afinacion.setAttribute("y", y + 4);
                 afinacion.setAttribute("fill", "#00f3ff"); afinacion.setAttribute("font-size", "12px");
@@ -402,9 +402,8 @@
                         let colorBase = esTonica ? "#ff00ff" : "#00f3ff";
                         let textoAImprimir = NOMBRES_NOTAS[idNotaActual];
                         
-                        // Si la nota tiene barra (ej C#/Db), recortamos para no saturar el dibujo
                         if(textoAImprimir.includes("/")) {
-                            textoAImprimir = textoAImprimir.split("/")[0]; // Muestra C# en vez de C#/Db
+                            textoAImprimir = textoAImprimir.split("/")[0];
                         }
                         
                         let circulo = document.createElementNS("http://www.w3.org/2000/svg", "circle");
