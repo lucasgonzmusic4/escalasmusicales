@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#000000">
+    <title>Escalas Musicales</title>
+    
+    <!-- Enlaces obligatorios PWA -->
+    <link rel="manifest" href="./manifest.json">
+    <link rel="apple-touch-icon" href="./icono.png">
+    
+    <!-- Alertas Profesionales -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <style>
+        html, body {
+            background-color: #000000; color: #ffffff;
+            font-family: system-ui, -apple-system, sans-serif;
+            margin: 0; padding: 0; overflow-x: hidden; 
+            user-select: none; -webkit-user-select: none;
+        }
+
+        h1 {
+            color: #ffffff;
+            text-shadow: 0 0 20px rgba(0, 243, 255, 0.8), 0 0 5px rgba(0, 243, 255, 0.4);
+            font-size: 2.2em; font-weight: 900; text-align: center;
+            margin-top: 40px; letter-spacing: 3px; line-height: 1.2;
+        }
+        h1 span {
+            color: #00f3ff; display: block; font-size: 0.5em;
+            letter-spacing: 6px; margin-top: 5px;
+        }
+
+        .pantalla { display: none; width: 100vw; min-height: 100vh; flex-direction: column; align-items: center; background-color: #000000; padding-bottom: 40px; }
+        .activa { display: flex; }
+
+        .btn-principal {
+            background-color: rgba(255, 255, 255, 0.03); border: 1px solid;
+            padding: 15px 30px; margin: 10px; font-size: 1.1em; font-weight: 700;
+            cursor: pointer; border-radius: 8px; transition: 0.3s;
+            width: 85%; max-width: 380px; text-transform: uppercase; letter-spacing: 2px;
+            display: flex; justify-content: center; align-items: center; gap: 10px;
+        }
+        .btn-fucsia { color: #ff00ff; border-color: rgba(255, 0, 255, 0.5); box-shadow: 0 4px 15px rgba(255, 0, 255, 0.1); }
+        .btn-fucsia:active { background-color: #ff00ff; color: #000; box-shadow: 0 0 25px rgba(255, 0, 255, 0.6); }
+
+        .btn-cian { color: #00f3ff; border-color: rgba(0, 243, 255, 0.5); box-shadow: 0 4px 15px rgba(0, 243, 255, 0.1); }
+        .btn-cian:active { background-color: #00f3ff; color: #000; box-shadow: 0 0 25px rgba(0, 243, 255, 0.6); }
+
+        .btn-peligro { color: #ff3333; border-color: rgba(255, 51, 51, 0.5); width: auto; padding: 15px; }
+        .btn-peligro:active { background-color: #ff3333; color: #000; }
+
+        .btn-instalar { background-color: #00f3ff; color: #000; border: none; box-shadow: 0 0 20px rgba(0, 243, 255, 0.5); display: none; margin-top: 20px;}
+        .btn-instalar:active { background-color: #ffffff; }
+
+        .input-cyber {
+            width: 90%; max-width: 420px; padding: 15px;
+            background-color: #0d0d0d; color: #fff; border: 1px solid #333;
+            border-radius: 10px; font-size: 1.1em; margin-bottom: 20px;
+            outline: none; box-sizing: border-box;
+        }
+        select.input-cyber {
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23ff00ff%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+            background-repeat: no-repeat; background-position: right 20px top 50%; background-size: 15px auto;
+        }
+        .input-cyber:focus { border-color: #ff00ff; box-shadow: 0 0 10px rgba(255,0,255,0.2); }
+
+        .visor-escala {
+            width: 95%; max-width: 900px;
+            background: #0a0a0a; border: 1px solid #222; border-radius: 15px;
+            padding: 20px; box-sizing: border-box;
+            display: flex; flex-direction: column; align-items: center; margin-top: 10px;
+        }
+
+        .contenedor-mastil {
+            width: 100%; overflow-x: auto; display: flex; justify-content: flex-start;
+            padding: 10px 0; border-top: 1px solid #222; border-bottom: 1px solid #222;
+        }
+
+        #svg-mastil { min-width: 850px; height: 180px; overflow: visible; }
+
+        .titulo-seccion { color: #fff; font-weight: 300; letter-spacing: 2px; font-size: 1.2em; margin-bottom: 10px; margin-top: 20px; }
+        
+        .leyenda { display: flex; gap: 20px; margin-top: 15px; margin-bottom: 15px; font-size: 0.85em; font-weight: bold; letter-spacing: 1px; }
+        .leyenda-item { display: flex; align-items: center; gap: 8px; }
+        .punto-tonica { width: 14px; height: 14px; background: #ff00ff; border-radius: 50%; box-shadow: 0 0 8px #ff00ff; }
+        .punto-escala { width: 14px; height: 14px; background: #00f3ff; border-radius: 50%; box-shadow: 0 0 8px #00f3ff; }
+
+        .lista-favs { width: 100%; max-width: 420px; display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
+        .item-fav { display: flex; justify-content: space-between; align-items: center; background: #111; padding: 10px; border-radius: 8px; border: 1px solid #222;}
+    </style>
+</head>
+<body>
+
+    <!-- ================= LOGIN ================= -->
+    <div id="pantalla-login" class="pantalla activa">
+        <h1>ESCALAS<span>DE GUITARRA</span></h1>
+        
+        <button id="btn-instalar-app" class="btn-principal btn-instalar" onclick="forzarInstalacion()">📲 PROBAR INSTALACIÓN</button>
+
+        <div style="margin-top: 40px; width: 100%; display: flex; flex-direction: column; align-items: center;">
+            <p style="color: #777; width: 90%; max-width: 420px; text-align: center; margin-bottom: 20px;">
+                Ingresá el correo con el que realizaste la compra.
+            </p>
+            <input type="email" id="input-email-login" class="input-cyber" placeholder="tu@correo.com">
+            <button class="btn-principal btn-fucsia" onclick="intentarActivar()">ACTIVAR SOFTWARE</button>
+            <p id="mensaje-login" style="color: red; font-weight: bold; margin-top: 15px;"></p>
+        </div>
+    </div>
+
+    <!-- ================= INICIO (CONFIGURADOR) ================= -->
+    <div id="pantalla-inicio" class="pantalla" style="padding-top: 30px;">
+        <h1>ESCALAS MUSICALES<span>ILUSTRADAS</span></h1>
+        
+        <h2 class="titulo-seccion">TÓNICA</h2>
+        <select id="select-tonica" class="input-cyber"></select>
+
+        <h2 class="titulo-seccion">ESTRUCTURA</h2>
+        <select id="select-escala" class="input-cyber"></select>
+
+        <button class="btn-principal btn-fucsia" onclick="generarEscalaYMostrar()" style="margin-top: 20px;">VER ESCALA</button>
+        <button class="btn-principal btn-cian" onclick="irAFavoritos()">ESCALAS FAVORITAS</button>
+    </div>
+
+    <!-- ================= VISOR DEL MÁSTIL ================= -->
+    <div id="pantalla-escala" class="pantalla" style="padding-top: 20px;">
+        <div class="visor-escala">
+            <h2 id="titulo-escala-vista" style="color: #00f3ff; margin-bottom: 5px; font-size: 1.8em; text-transform: uppercase; text-shadow: 0 0 10px rgba(0,243,255,0.5);"></h2>
+            
+            <div class="leyenda">
+                <div class="leyenda-item"><div class="punto-tonica"></div> TÓNICA</div>
+                <div class="leyenda-item"><div class="punto-escala"></div> EN ESCALA</div>
+            </div>
+
+            <div class="contenedor-mastil">
+                <svg id="svg-mastil" viewBox="-30 -20 820 180"></svg>
+            </div>
+            
+            <div style="display: flex; gap: 10px; width: 100%; justify-content: center; margin-top: 25px; flex-wrap: wrap;">
+                <button class="btn-principal btn-fucsia" onclick="abrirModalGuardar()" style="width: auto; padding: 10px 20px; font-size: 0.9em;">⭐ GUARDAR</button>
+                <button class="btn-principal btn-cian" onclick="cambiarPantalla('pantalla-inicio')" style="width: auto; padding: 10px 20px; font-size: 0.9em;">VOLVER</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= FAVORITOS (CARPETAS) ================= -->
+    <div id="pantalla-favoritos" class="pantalla" style="padding-top: 30px;">
+        <h1>TUS<span>CARPETAS</span></h1>
+        
+        <div id="lista-carpetas" class="lista-favs"></div>
+        
+        <button class="btn-principal btn-cian" onclick="cambiarPantalla('pantalla-inicio')" style="margin-top: 30px;">VOLVER AL INICIO</button>
+    </div>
+
+    <!-- ================= FAVORITOS (ESCALAS POR CARPETA) ================= -->
+    <div id="pantalla-lista-escalas" class="pantalla" style="padding-top: 30px;">
+        <h1 id="titulo-carpeta-vista">CARPETA</h1>
+        
+        <div id="lista-escalas-items" class="lista-favs"></div>
+        
+        <button class="btn-principal btn-cian" onclick="irAFavoritos()" style="margin-top: 30px;">VOLVER A CARPETAS</button>
+    </div>
+
+    <!-- INSTALACION PWA -->
+    <script>
+        let disparadorInstalacion = null;
+        const btnInstalar = document.getElementById('btn-instalar-app');
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            disparadorInstalacion = e;
+            btnInstalar.innerText = "📲 INSTALAR APP AHORA";
+            btnInstalar.style.backgroundColor = "#00ff73"; 
+            btnInstalar.style.boxShadow = "0 0 20px rgba(0, 255, 115, 0.5)";
+            btnInstalar.style.display = "block";
+        });
+
+        async function forzarInstalacion() {
+            if (!disparadorInstalacion) {
+                Swal.fire({ title: 'Aviso', text: 'La app ya está instalada o tu navegador la bloquea en incógnito.', icon: 'info', background: '#1a1a1a', color: '#fff', confirmButtonColor: '#00f3ff' });
+                return;
+            }
+            disparadorInstalacion.prompt();
+            const { outcome } = await disparadorInstalacion.userChoice;
+            if (outcome === 'accepted') {
+                btnInstalar.style.display = 'none'; 
+            }
+            disparadorInstalacion = null;
+        }
+
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js?v=' + new Date().getTime())
+                    .then(reg => console.log('SW listo', reg))
+                    .catch(err => console.error('Error SW', err));
+            });
+        }
+    </script>
+
+    <!-- LOGICA PRINCIPAL -->
+    <script>
+        // --- CONSTANTES MUSICALES ---
+        const CHROMATIC = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+        const CUERDAS = ["E", "B", "G", "D", "A", "E"]; // De 1ra a 6ta
+        const FORMULAS = {
+            "Escala Mayor Diatónica": [0, 2, 4, 5, 7, 9, 11],
+            "Escala Menor Antigua": [0, 2, 3, 5, 7, 8, 10],
+            "Escala Pentatónica Mayor": [0, 2, 4, 7, 9],
+            "Escala Pentatónica Menor": [0, 3, 5, 7, 10],
+            "Escala de Blues": [0, 3, 5, 6, 7, 10],
+            "Escala Dórica": [0, 2, 3, 5, 7, 9, 10],
+            "Escala Mixolidia": [0, 2, 4, 5, 7, 9, 10],
+            "Escala Lidia": [0, 2, 4, 6, 7, 9, 11],
+            "Escala Frigia": [0, 1, 3, 5, 7, 8, 10],
+            "Escala Locria": [0, 1, 3, 5, 6, 8, 10],
+            "Escala Menor Armónica": [0, 2, 3, 5, 7, 8, 11],
+            "Escala Menor Melódica": [0, 2, 3, 5, 7, 9, 11]
+        };
+
+        // --- SISTEMA DE DATOS ---
+        const URL_RECEPCIONISTA = "https://script.google.com/macros/s/AKfycbx6-2gfl9UGXOi5CQDaEC55_89hsRflJGF8DyiC9jz4hw82mhMaEmeK99Y4VxOKoVW6/exec";
+        
+        let datosApp = {
+            tonicaActual: "C",
+            escalaActual: "Escala Mayor Diatónica",
+            carpetaSeleccionada: null
+        };
+
+        function obtenerDeviceID() {
+            let id = localStorage.getItem('escalas_device_id');
+            if (!id) {
+                id = crypto.randomUUID ? crypto.randomUUID() : 'id-' + Math.random().toString(36).substring(2, 15);
+                localStorage.setItem('escalas_device_id', id);
+            }
+            return id;
+        }
+
+        function cargarFavoritos() {
+            let favs = localStorage.getItem('escalas_favoritas');
+            if (favs) {
+                try { return JSON.parse(favs); } catch(e) {}
+            }
+            return {"General": []};
+        }
+
+        function guardarFavoritos(datos) {
+            localStorage.setItem('escalas_favoritas', JSON.stringify(datos));
+        }
+
+        // --- INICIALIZACION Y NAVEGACION ---
+        window.onload = () => {
+            llenarSelectores();
+            if (localStorage.getItem('escalas_activado') === 'true') {
+                cambiarPantalla('pantalla-inicio');
+            }
+        };
+
+        function cambiarPantalla(id) {
+            document.querySelectorAll('.pantalla').forEach(p => p.classList.remove('activa'));
+            document.getElementById(id).classList.add('activa');
+        }
+
+        function llenarSelectores() {
+            let sTon = document.getElementById('select-tonica');
+            let sEsc = document.getElementById('select-escala');
+            
+            CHROMATIC.forEach(t => {
+                let opt = document.createElement('option'); opt.value = t; opt.innerText = t;
+                sTon.appendChild(opt);
+            });
+            
+            Object.keys(FORMULAS).forEach(e => {
+                let opt = document.createElement('option'); opt.value = e; opt.innerText = e;
+                sEsc.appendChild(opt);
+            });
+        }
+
+        // --- LOGIN ---
+        async function intentarActivar() {
+            let email = document.getElementById('input-email-login').value.trim();
+            let msj = document.getElementById('mensaje-login');
+
+            if (!email) { msj.innerText = "Ingresá un correo."; msj.style.color = "red"; return; }
+
+            msj.innerText = "Conectando..."; msj.style.color = "#00f3ff";
+            
+            try {
+                let response = await fetch(URL_RECEPCIONISTA, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({ email: email, deviceID: obtenerDeviceID() })
+                });
+
+                let data = await response.json();
+                if (data.status === "OK") {
+                    localStorage.setItem('escalas_activado', 'true');
+                    cambiarPantalla('pantalla-inicio');
+                } else {
+                    msj.innerText = data.message || "Error"; msj.style.color = "red";
+                }
+            } catch (error) {
+                msj.innerText = "Sin conexión."; msj.style.color = "red";
+            }
+        }
+
+        // --- MOTOR MATEMATICO ---
+        function calcularNotasEscala(tonica, tipo) {
+            let idxTonica = CHROMATIC.indexOf(tonica);
+            let formula = FORMULAS[tipo];
+            return formula.map(intervalo => CHROMATIC[(idxTonica + intervalo) % 12]);
+        }
+
+        function generarEscalaYMostrar() {
+            datosApp.tonicaActual = document.getElementById('select-tonica').value;
+            datosApp.escalaActual = document.getElementById('select-escala').value;
+            abrirVisorEscala(datosApp.tonicaActual, datosApp.escalaActual);
+        }
+
+        function abrirVisorEscala(tonica, tipo) {
+            document.getElementById('titulo-escala-vista').innerText = `${tonica} - ${tipo}`;
+            dibujarMastilSVG(tonica, tipo);
+            cambiarPantalla('pantalla-escala');
+        }
+
+        // --- DIBUJADO DEL MÁSTIL VECTORIAL ---
+        function dibujarMastilSVG(tonica, tipo) {
+            let notasPermitidas = calcularNotasEscala(tonica, tipo);
+            let svg = document.getElementById('svg-mastil');
+            svg.innerHTML = ''; 
+
+            const FRET_SPACING = 50;
+            const STRING_SPACING = 25;
+            const FRETS = 15;
+
+            // Dibujar Trastes (Líneas verticales)
+            for(let i = 0; i <= FRETS; i++) {
+                let x = i * FRET_SPACING;
+                
+                // Fondo de la cejilla (Traste 0)
+                if (i === 0) {
+                    let cejilla = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+                    cejilla.setAttribute("x", x - 10); cejilla.setAttribute("y", -10);
+                    cejilla.setAttribute("width", 10); cejilla.setAttribute("height", 5 * STRING_SPACING + 20);
+                    cejilla.setAttribute("fill", "#222"); cejilla.setAttribute("rx", 3);
+                    svg.appendChild(cejilla);
+                }
+
+                let linea = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                linea.setAttribute("x1", x); linea.setAttribute("y1", 0);
+                linea.setAttribute("x2", x); linea.setAttribute("y2", 5 * STRING_SPACING);
+                linea.setAttribute("stroke", i === 0 ? "#fff" : "#555");
+                linea.setAttribute("stroke-width", i === 0 ? 3 : 1.5);
+                svg.appendChild(linea);
+
+                // Números de traste abajo
+                if (i > 0) {
+                    let num = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                    num.setAttribute("x", x - (FRET_SPACING/2));
+                    num.setAttribute("y", 5 * STRING_SPACING + 25);
+                    num.setAttribute("fill", "#666"); num.setAttribute("font-size", "12px");
+                    num.setAttribute("text-anchor", "middle"); num.setAttribute("font-weight", "bold");
+                    num.textContent = i;
+                    svg.appendChild(num);
+                }
+            }
+
+            // Puntos guía del mástil (3, 5, 7, 9, 12, 15)
+            let marcas = [3, 5, 7, 9, 12, 15];
+            marcas.forEach(m => {
+                let cx = (m * FRET_SPACING) - (FRET_SPACING/2);
+                let cy = (5 * STRING_SPACING) / 2;
+                if (m === 12) {
+                    let p1 = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                    p1.setAttribute("cx", cx); p1.setAttribute("cy", cy - 15); p1.setAttribute("r", 4); p1.setAttribute("fill", "#333");
+                    let p2 = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                    p2.setAttribute("cx", cx); p2.setAttribute("cy", cy + 15); p2.setAttribute("r", 4); p2.setAttribute("fill", "#333");
+                    svg.appendChild(p1); svg.appendChild(p2);
+                } else {
+                    let p = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                    p.setAttribute("cx", cx); p.setAttribute("cy", cy); p.setAttribute("r", 4); p.setAttribute("fill", "#333");
+                    svg.appendChild(p);
+                }
+            });
+
+            // Dibujar Cuerdas y Notas
+            CUERDAS.forEach((cuerda, idxCuerda) => {
+                let y = idxCuerda * STRING_SPACING;
+                
+                // Línea de la cuerda
+                let lineaCuerda = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                lineaCuerda.setAttribute("x1", -10); lineaCuerda.setAttribute("y1", y);
+                lineaCuerda.setAttribute("x2", FRETS * FRET_SPACING); lineaCuerda.setAttribute("y2", y);
+                lineaCuerda.setAttribute("stroke", "#888");
+                lineaCuerda.setAttribute("stroke-width", 1 + (idxCuerda * 0.2)); // Cuerdas graves más gruesas
+                svg.appendChild(lineaCuerda);
+
+                // Letra de afinación al inicio
+                let afinacion = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                afinacion.setAttribute("x", -25); afinacion.setAttribute("y", y + 4);
+                afinacion.setAttribute("fill", "#555"); afinacion.setAttribute("font-size", "12px");
+                afinacion.setAttribute("text-anchor", "middle"); afinacion.setAttribute("font-weight", "bold");
+                afinacion.textContent = cuerda;
+                svg.appendChild(afinacion);
+
+                // Calcular notas
+                let idxAire = CHROMATIC.indexOf(cuerda);
+                for(let traste = 0; traste <= FRETS; traste++) {
+                    let notaActual = CHROMATIC[(idxAire + traste) % 12];
+                    
+                    if (notasPermitidas.includes(notaActual)) {
+                        let esTonica = (notaActual === tonica);
+                        let cx = traste === 0 ? 0 : (traste * FRET_SPACING) - (FRET_SPACING/2);
+                        
+                        let colorBase = esTonica ? "#ff00ff" : "#00f3ff";
+                        
+                        let circulo = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                        circulo.setAttribute("cx", cx); circulo.setAttribute("cy", y);
+                        circulo.setAttribute("r", 10);
+                        circulo.setAttribute("fill", colorBase);
+                        circulo.style.filter = `drop-shadow(0px 0px 6px ${colorBase})`;
+                        svg.appendChild(circulo);
+
+                        let txtNota = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                        txtNota.setAttribute("x", cx); txtNota.setAttribute("y", y + 4);
+                        txtNota.setAttribute("fill", "#000"); txtNota.setAttribute("font-size", "10px");
+                        txtNota.setAttribute("text-anchor", "middle"); txtNota.setAttribute("font-weight", "900");
+                        txtNota.textContent = notaActual;
+                        svg.appendChild(txtNota);
+                    }
+                }
+            });
+        }
+
+        // --- SISTEMA DE FAVORITOS (SWEETALERT2) ---
+        function abrirModalGuardar() {
+            let favs = cargarFavoritos();
+            let carpetas = Object.keys(favs);
+            let optionsHTML = carpetas.map(c => `<option value="${c}">${c}</option>`).join('');
+
+            Swal.fire({
+                title: 'Guardar Escala',
+                html: `
+                    <select id="swal-carpeta" class="swal2-input" style="background:#111; color:#00f3ff; border:1px solid #ff00ff;">
+                        ${optionsHTML}
+                    </select>
+                    <input id="swal-nueva" class="swal2-input" placeholder="O crear carpeta nueva..." style="background:#111; color:#fff; border:1px solid #333;">
+                `,
+                background: '#1a1a1a',
+                color: '#fff',
+                showCancelButton: true,
+                confirmButtonText: 'GUARDAR',
+                cancelButtonText: 'CANCELAR',
+                confirmButtonColor: '#ff00ff',
+                cancelButtonColor: '#333',
+                preConfirm: () => {
+                    let sel = document.getElementById('swal-carpeta').value;
+                    let nueva = document.getElementById('swal-nueva').value.trim();
+                    return nueva ? nueva : sel;
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    let nombreCarpeta = result.value;
+                    if (!favs[nombreCarpeta]) favs[nombreCarpeta] = [];
+                    
+                    let nuevaEscala = {
+                        tonica: datosApp.tonicaActual,
+                        tipo: datosApp.escalaActual,
+                        desc: `${datosApp.escalaActual} en ${datosApp.tonicaActual}`
+                    };
+
+                    favs[nombreCarpeta].push(nuevaEscala);
+                    guardarFavoritos(favs);
+
+                    Swal.fire({
+                        title: '¡Guardado!',
+                        text: 'Escala agregada a tus favoritos.',
+                        icon: 'success',
+                        background: '#1a1a1a', color: '#fff', confirmButtonColor: '#00f3ff'
+                    });
+                }
+            });
+        }
+
+        function irAFavoritos() {
+            let favs = cargarFavoritos();
+            let divLista = document.getElementById('lista-carpetas');
+            divLista.innerHTML = '';
+
+            Object.keys(favs).forEach(nombre => {
+                let div = document.createElement('div'); div.className = 'item-fav';
+                
+                let btnAbrir = document.createElement('button');
+                btnAbrir.className = 'btn-principal btn-cian';
+                btnAbrir.style.width = '70%'; btnAbrir.style.margin = '0';
+                btnAbrir.innerHTML = `📁 ${nombre}`;
+                btnAbrir.onclick = () => abrirCarpeta(nombre);
+
+                let btnBorrar = document.createElement('button');
+                btnBorrar.className = 'btn-principal btn-peligro';
+                btnBorrar.style.margin = '0';
+                btnBorrar.innerHTML = `🗑️`;
+                btnBorrar.onclick = () => borrarCarpeta(nombre);
+
+                div.appendChild(btnAbrir); div.appendChild(btnBorrar);
+                divLista.appendChild(div);
+            });
+
+            cambiarPantalla('pantalla-favoritos');
+        }
+
+        function abrirCarpeta(nombre) {
+            datosApp.carpetaSeleccionada = nombre;
+            let favs = cargarFavoritos();
+            let items = favs[nombre] || [];
+            
+            document.getElementById('titulo-carpeta-vista').innerText = nombre.toUpperCase();
+            
+            let divLista = document.getElementById('lista-escalas-items');
+            divLista.innerHTML = '';
+
+            items.forEach((escala, idx) => {
+                let div = document.createElement('div'); div.className = 'item-fav';
+                
+                let btnAbrir = document.createElement('button');
+                btnAbrir.className = 'btn-principal';
+                btnAbrir.style.width = '70%'; btnAbrir.style.margin = '0'; btnAbrir.style.color = '#fff';
+                btnAbrir.innerHTML = `▶ ${escala.desc}`;
+                btnAbrir.onclick = () => abrirVisorEscala(escala.tonica, escala.tipo);
+
+                let btnBorrar = document.createElement('button');
+                btnBorrar.className = 'btn-principal btn-peligro';
+                btnBorrar.style.margin = '0';
+                btnBorrar.innerHTML = `🗑️`;
+                btnBorrar.onclick = () => borrarEscala(nombre, idx);
+
+                div.appendChild(btnAbrir); div.appendChild(btnBorrar);
+                divLista.appendChild(div);
+            });
+
+            cambiarPantalla('pantalla-lista-escalas');
+        }
+
+        function borrarCarpeta(nombre) {
+            Swal.fire({
+                title: '¿Borrar carpeta?', text: "Se eliminarán todas las escalas adentro.",
+                icon: 'warning', showCancelButton: true, background: '#1a1a1a', color: '#fff',
+                confirmButtonColor: '#ff3333', confirmButtonText: 'Sí, borrar', cancelButtonColor: '#333'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    let favs = cargarFavoritos();
+                    delete favs[nombre];
+                    guardarFavoritos(favs);
+                    irAFavoritos();
+                }
+            });
+        }
+
+        function borrarEscala(nombreCarpeta, idx) {
+            let favs = cargarFavoritos();
+            favs[nombreCarpeta].splice(idx, 1);
+            guardarFavoritos(favs);
+            abrirCarpeta(nombreCarpeta);
+        }
+    </script>
+</body>
+</html>
