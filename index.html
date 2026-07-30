@@ -549,6 +549,17 @@
             guardarFavoritos(favs);
             abrirCarpeta(nombreCarpeta);
         }
+    <!-- ================= SCRIPT PWA ================= -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js?v=1')
+                    .then(reg => console.log('Service Worker Registrado'))
+                    .catch(err => console.log('Error en Service Worker:', err));
+            });
+        }
     </script>
+</body>
+</html>
 </body>
 </html>
