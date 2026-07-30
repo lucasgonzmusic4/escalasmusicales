@@ -550,15 +550,19 @@
             abrirCarpeta(nombreCarpeta);
         }
     <!-- ================= SCRIPT PWA ================= -->
+   <!-- ================= SCRIPT PARA MATAR EL CACHÉ TRABADO ================= -->
     <script>
         if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js?v=1')
-                    .then(reg => console.log('Service Worker Registrado'))
-                    .catch(err => console.log('Error en Service Worker:', err));
+            navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                for(let registration of registrations) {
+                    registration.unregister();
+                    console.log('Caché fantasma eliminado');
+                }
             });
         }
     </script>
+</body>
+</html>
 </body>
 </html>
 </body>
