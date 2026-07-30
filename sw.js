@@ -1,4 +1,4 @@
-const CACHE_NAME = 'escalas-guitarra-v1';
+const CACHE_NAME = 'escalas-guitarra-v2';
 
 // Guardamos archivos locales y la librería de alertas
 const urlsToCache = [
@@ -21,6 +21,11 @@ self.addEventListener('install', event => {
 });
 
 self.addEventListener('fetch', event => {
+  // REGLA DE ORO: Ignorar peticiones de login (POST) y conexiones a Google Scripts
+  if (event.request.method !== 'GET' || event.request.url.includes('script.google.com')) {
+    return; // Dejamos que el navegador haga la conexión con internet sin intervenir
+  }
+
   event.respondWith(
     caches.match(event.request).then(response => {
       // Si está en caché (offline), lo usa. Si no, va a internet.
