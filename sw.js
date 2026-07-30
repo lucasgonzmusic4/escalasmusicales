@@ -1,39 +1,9 @@
-const CACHE_NAME = 'escalas-guitarra-v4';
-
-const urlsToCache = [
-  './',
-  './index.html',
-  './manifest.json',
-  './icono.png',
-  'https://cdn.jsdelivr.net/npm/sweetalert2@11'
-];
+// Service Worker Transparente - Solo para permitir instalación PWA
+const CACHE_NAME = 'escala-online-v1';
 
 self.addEventListener('install', event => {
+  // Se instala al instante sin descargar archivos extra
   self.skipWaiting();
-  event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => {
-      return cache.addAll(urlsToCache);
-    })
-  );
-});
-
-// INTERCEPCIÓN BLINDADA
-self.addEventListener('fetch', event => {
-  const url = new URL(event.request.url);
-
-  // REGLA DE PLOMO: Si no es una petición GET (ej. es un POST), 
-  // O si la petición va hacia cualquier servidor externo (Google) que no sea nuestra app o SweetAlert...
-  // El Service Worker se apaga y deja que el navegador trabaje directo con internet.
-  if (event.request.method !== 'GET' || (url.origin !== location.origin && !url.href.includes('sweetalert2'))) {
-    return; 
-  }
-
-  // Solo interceptamos y usamos caché para nuestra app visual
-  event.respondWith(
-    caches.match(event.request).then(response => {
-      return response || fetch(event.request);
-    })
-  );
 });
 
 self.addEventListener('activate', event => {
@@ -41,12 +11,15 @@ self.addEventListener('activate', event => {
     caches.keys().then(cacheNames => {
       return Promise.all(
         cacheNames.map(cacheName => {
-          if (cacheName !== CACHE_NAME) {
-            return caches.delete(cacheName);
-          }
+          return caches.delete(cacheName); // Borra cualquier rastro de cachés viejos
         })
       );
     })
   );
   return self.clients.claim();
+});
+
+self.addEventListener('fetch', event => {
+  // Deja pasar TODO directo a internet. Cero bloqueos.
+  event.respondWith(fetch(event.request));
 });
