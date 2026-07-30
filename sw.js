@@ -1,15 +1,33 @@
-const CACHE_NAME = 'escalas-v1';
+const CACHE_NAME = 'escalas-guitarra-v1';
+
+// Guardamos archivos locales y la librería de alertas
+const urlsToCache = [
+  './',
+  './index.html',
+  './manifest.json',
+  './icono.png',
+  'https://cdn.jsdelivr.net/npm/sweetalert2@11'
+];
 
 self.addEventListener('install', event => {
-  self.skipWaiting(); 
+  self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => {
-      return cache.addAll([
-        './',
-        './index.html',
-        './manifest.json',
-        './icono.png'
-      ]);
+      return cache.addAll(urlsToCache).catch(err => {
+        console.log('Error guardando en caché:', err);
+      });
+    })
+  );
+});
+
+self.addEventListener('fetch', event => {
+  event.respondWith(
+    caches.match(event.request).then(response => {
+      // Si está en caché (offline), lo usa. Si no, va a internet.
+      if (response) {
+        return response;
+      }
+      return fetch(event.request);
     })
   );
 });
@@ -18,19 +36,13 @@ self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(cacheNames => {
       return Promise.all(
-        cacheNames.map(cache => {
-          if (cache !== CACHE_NAME) {
-            return caches.delete(cache); 
+        cacheNames.map(cacheName => {
+          if (cacheName !== CACHE_NAME) {
+            return caches.delete(cacheName);
           }
         })
       );
     })
   );
-  self.clients.claim();
-});
-
-self.addEventListener('fetch', event => {
-  event.respondWith(
-    fetch(event.request).catch(() => caches.match(event.request))
-  );
+  return self.clients.claim();
 });
