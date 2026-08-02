@@ -1,6 +1,6 @@
 {
-  "name": "Escalas Musicales",
-  "short_name": "Escalas",
+  "name": "Escalas para Guitarra",
+  "short_name": "Escalas Guitarra",
   "description": "Motor interactivo de escalas para guitarra.",
   "start_url": "./index.html",
   "scope": "./",
